@@ -48,7 +48,4 @@ def update_product_price(new_price: ProductPrice, product_id: int = Path(ge=1, d
 # DELETE
 @app.delete('/api/product/{product_id}', tags=['API', 'Product'])
 def update_product_price(product_id: int = Path(ge=1, description='product id')) -> DeletedProduct:
-    storage.delete_product(product_id)
-    return DeletedProduct(id=product_id)
-
-
+    storage.delete_product(productidtml
