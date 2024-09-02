@@ -1,4 +1,6 @@
-from fastapi import FastAPI, status, Query, Path
+from fastapi import FastAPI, status, Query, Path, Request, Form
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from schemas import NewProduct, SavedProduct, ProductPrice, DeletedProduct
 from storage import storage
@@ -8,11 +10,40 @@ app = FastAPI(
     title='Group1305',
 )
 
+templates = Jinja2Templates(directory='templates')
+app.mount('/static', StaticFiles(directory='static'), name='static')
 
+
+@app.get('/', include_in_schema=False)
 @app.post('/', include_in_schema=False)
-def index():
-    return {'subject': 'Hello!'}
+def index(request: Request, q: str = Form(default='')):
+    products = storage.get_products(limit=40, q=q)
+    context = {
+        'request': request,
+        'page_title': 'All products',
+        'products': products
+    }
+    return templates.TemplateResponse('index.html', context=context)
 
+
+@app.get('/{product_id}', include_in_schema=False)
+def product_detail(request: Request, product_id: int):
+    product = storage.get_product(product_id)
+    context = {
+        'request': request,
+        'page_title': f'Product {product.title}',
+        'product': product
+    }
+    return templates.TemplateResponse('details.html', context=context)
+
+
+@app.get('/navigation/', include_in_schema=False)
+def navigation(request: Request):
+    context = {
+        'request': request,
+        'page_title': f'How to get to us',
+    }
+    return templates.TemplateResponse('navigation.html', context=context)
 
 # CRUD
 
@@ -50,5 +81,4 @@ def update_product_price(new_price: ProductPrice, product_id: int = Path(ge=1, d
 def update_product_price(product_id: int = Path(ge=1, description='product id')) -> DeletedProduct:
     storage.delete_product(product_id)
     return DeletedProduct(id=product_id)
-
 
