@@ -1,23 +1,20 @@
+# schemas.py
 from datetime import datetime
-
 from pydantic import BaseModel, HttpUrl, Field
 
 
-class ProductPrice(BaseModel):
-    price: float = Field(gt=0, le=10_000, examples=[125.15])
+class TripPrice(BaseModel):
+    price: float = Field(gt=0, le=10000, examples=[100.50])
 
 
-class NewProduct(ProductPrice):
+class NewTrip(TripPrice):
     title: str
+    destination: str
     description: str
-    cover: HttpUrl
+    image: HttpUrl
 
 
-class SavedProduct(NewProduct):
+class SavedTrip(NewTrip):
     id: int
     created_at: datetime
 
-
-class DeletedProduct(BaseModel):
-    id: int
-    deleted: bool = True
